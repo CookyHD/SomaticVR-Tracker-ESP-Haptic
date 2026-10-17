@@ -19,7 +19,7 @@ void Haptic::setup() {
 void Haptic::update() {
 
 	if (!is_connected) {
-		if (last_discovery + DISCOVERY_TIMEOUT < millis()) {
+		if (last_discovery + DISCOVERY_RATE < millis()) {
 			logger.info("Searching For Haptic Server.");
 			last_discovery = millis();
 			Haptic::send((uint8_t)HapticPacketType::Discovery);
@@ -83,6 +83,7 @@ void Haptic::update() {
 }
 
 void Haptic::test(SlimeVR::Logging::Logger &callback_logger) {
+	callback_logger.info("Testing Haptic Motor.\n");
 	logger.warn("NOT IMPLEMENTED YET!\n");
 	callback_logger.info("Done.");
 }

@@ -469,7 +469,6 @@ void cmdDeleteCalibration(CmdParser* parser) {
 }
 
 void cmdHaptic(CmdParser* parser) {
-	logger.info("Testing Haptic Motor.\n");
 	Haptic::Instance().test(logger);
 }
 
