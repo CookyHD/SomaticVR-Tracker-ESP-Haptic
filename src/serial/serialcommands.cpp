@@ -31,17 +31,19 @@
 #include "logging/Logger.h"
 #include "utils.h"
 
+#include "haptic/haptic.h"
+
 #ifdef ESP32
 #include "nvs_flash.h"
 #endif
 
 #ifdef EXT_SERIAL_COMMANDS
-#define CALLBACK_SIZE 7  // Increase callback size to allow for debug commands
+#define CALLBACK_SIZE 8  // Increase callback size to allow for debug commands
 #include "i2cscan.h"
 #endif
 
 #ifndef CALLBACK_SIZE
-#define CALLBACK_SIZE 6  // Default callback size
+#define CALLBACK_SIZE 7  // Default callback size
 #endif
 
 #if defined(VENDOR_URL) && defined(VENDOR_NAME) && defined(PRODUCT_NAME) \
@@ -466,6 +468,12 @@ void cmdDeleteCalibration(CmdParser* parser) {
 	configuration.eraseSensors();
 }
 
+void cmdHaptic(CmdParser* parser) {
+	logger.info("Testing Haptic Motor.\n");
+	Haptic::Instance().test(logger);
+}
+
+
 #if EXT_SERIAL_COMMANDS
 void cmdScanI2C(CmdParser* parser) {
 	logger.info("Forcing I2C scan...");
@@ -480,6 +488,7 @@ void setUp() {
 	cmdCallbacks.addCmd("REBOOT", &cmdReboot);
 	cmdCallbacks.addCmd("DELCAL", &cmdDeleteCalibration);
 	cmdCallbacks.addCmd("TCAL", &cmdTemperatureCalibration);
+	cmdCallbacks.addCmd("HAPTIC", &cmdHaptic);
 #if EXT_SERIAL_COMMANDS
 	cmdCallbacks.addCmd("SCANI2C", &cmdScanI2C);
 #endif

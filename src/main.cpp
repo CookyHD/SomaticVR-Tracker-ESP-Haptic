@@ -37,6 +37,8 @@
 #include "serial/serialcommands.h"
 #include "status/TPSCounter.h"
 
+#include "haptic/haptic.h"
+
 Timer<> globalTimer;
 SlimeVR::Logging::Logger logger("SlimeVR");
 SlimeVR::Sensors::SensorManager sensorManager;
@@ -192,6 +194,7 @@ void setup() {
 	sensorManager.setup();
 
 	networkManager.setup();
+	Haptic::Instance().setup();
 	OTA::otaSetup(otaPassword);
 	battery.Setup();
 
@@ -211,6 +214,7 @@ void loop() {
 	chargerMonitor.update();
 	usbPDMonitor.update();
 	networkManager.update();
+	Haptic::Instance().update();
 
 #if DEBUG_MEASURE_SENSOR_TIME_TAKEN
 	sensorMeasurer.before();
