@@ -38,5 +38,7 @@ class Haptic {
 
 	unsigned long last_packet;
 	unsigned long last_discovery;
+
+ unsigned long start_vibration;
 };
 
