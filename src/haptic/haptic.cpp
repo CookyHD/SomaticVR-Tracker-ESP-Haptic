@@ -84,7 +84,8 @@ if (end_vibration <= millies()) {
 			break;
 
  case (uint8_t)HapticPacketType::DataPunch:
-			logger.info("Connected To Haptic
+			//todo
+break;
 	}
 
 	(void)length;
