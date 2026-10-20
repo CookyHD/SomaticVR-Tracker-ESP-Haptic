@@ -19,6 +19,10 @@ analogWriteFrequency(MOTOR_PIN, 5000)
 
 void Haptic::update() {
 
+if (end_vibration <= millies()) {
+  analogWrite(MOTOR_PIN, 0)
+} 
+
 	if (!is_connected) {
 		if (last_discovery + DISCOVERY_RATE < millis()) {
 			logger.info("Searching For Haptic Server.");
@@ -69,6 +73,7 @@ void Haptic::update() {
 			if (has_pin) {
 
 				analogWrite(MOTOR_PIN, (int)(255 * vibration))
+     end_vibration = millies() + (long)duration
      
 			}
 
