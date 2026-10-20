@@ -3,13 +3,17 @@ enum class HapticPacketType : uint8_t {
 	HandShake = 2,
 	Ping = 3,
 	Pong = 4,
-	Data = 5,
+	DataVibration = 5,
+ DataPunch = 6
 };
 
-struct DataPacket {
+struct DataPacketVibration {
 	uint8_t vibration[4];
 	uint8_t duration[4];
-	bool punch;
+};
+
+struct DataPacketPunch {
+	uint8_t strength[4];
 };
 
 template <typename T>
