@@ -13,6 +13,7 @@ void Haptic::setup() {
 	udp.begin(port);
 	if (!has_pin) {
 		pinMode(MOTOR_PIN,OUTPUT);
+analogWriteFrequency(MOTOR_PIN, 5000)
 	}
 }
 
@@ -67,7 +68,8 @@ void Haptic::update() {
 
 			if (has_pin) {
 
-				//TODO pin controll
+				analogWrite(MOTOR_PIN, (int)(255 * vibration))
+     
 			}
 
 			(void)data;
