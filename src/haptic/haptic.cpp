@@ -57,14 +57,13 @@ if (end_vibration <= millies()) {
 		case (uint8_t)HapticPacketType::Ping:
 			Haptic::send((uint8_t)HapticPacketType::Pong);
 			break;
-		case (uint8_t)HapticPacketType::Data:
+		case (uint8_t)HapticPacketType::DataVibration:
 
-			DataPacket data;
+			DataPacketVibration data;
 			memcpy(&data, buffer + 4, sizeof(DataPacket));
 
 			float vibration = resolve_field<float>(data.vibration);
 			int duration = resolve_field<int>(data.duration);
-			bool punch = data.punch;
 
 #ifdef HAPTIC_DEBUG
 			logger.debug("Recived Haptic Data: %f, %i, %s", vibration, duration, punch ? "true" : "false");
@@ -81,9 +80,11 @@ if (end_vibration <= millies()) {
 
 			(void)vibration;
 			(void)duration;
-			(void)punch;
 
 			break;
+
+ case (uint8_t)HapticPacketType::DataPunch:
+			logger.info("Connected To Haptic
 	}
 
 	(void)length;
