@@ -1,24 +1,18 @@
-enum class HapticPacketType : uint8_t {
+enum PacketType {
 	Discovery = 1,
-	HandShake = 2,
+	Handshake = 2,
 	Ping = 3,
-	Pong = 4,
-	DataVibration = 5,
- DataPunch = 6
+	UpdateData = 4,
 };
 
-struct DataPacketVibration {
-	uint8_t vibration[4];
-	uint8_t duration[4];
+struct UpdateDataPacket {
+	uint8_t duty;
 };
 
-struct DataPacketPunch {
-	uint8_t strength[4];
+struct DiscoveryPacket {
+	uint8_t mac[6];
 };
 
-template <typename T>
-T resolve_field(uint8_t *bytes) {
-	T value;
-	memcpy(&value, bytes, sizeof(T));
-	return value;
-}
+struct HandshakePacket {
+	uint8_t secret[4];
+};

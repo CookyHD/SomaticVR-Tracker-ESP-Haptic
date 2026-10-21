@@ -98,9 +98,11 @@
 
 #define PROTOCOL_VERSION 21
 
-#ifndef FIRMWARE_VERSION
-#define FIRMWARE_VERSION "UNKNOWN"
-#endif
+#define FIRMWARE_VERSION "v0.7.2-Orion-2 (Haptic)"
+
+//#ifndef FIRMWARE_VERSION
+//#define FIRMWARE_VERSION "UNKNOWN"
+//#endif
 
 #ifndef USE_RUNTIME_CALIBRATION
 #define USE_RUNTIME_CALIBRATION true

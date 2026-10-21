@@ -5,25 +5,22 @@
 
 //END
 
-#ifndef HAPTIC_RATE
-	#define HAPTIC_RATE 50
-#endif
-
-#ifndef HAPTIC_PIN_INVERTED
-	#define HAPTIC_PIN_INVERTED false
-#endif
-
 #ifndef MOTOR_PIN
-	#define MOTOR_PIN -1
+#define MOTOR_PIN -1
+#endif
+
+#ifndef MOTOR_PIN_INVERTED
+#define MOTOR_PIN_INVERTED false
 #endif
 
 #ifndef TIMEOUT
-	#define TIMEOUT 10000UL
+#define TIMEOUT 3000UL
 #endif
 
-#ifndef DISCOVERY_RATE
-	#define DISCOVERY_RATE 5000UL
+#ifndef DISCOVERY_TIMEOUT
+#define DISCOVERY_TIMEOUT 6000UL
 #endif
 
-//UNCOMMENT FOR DEBUG LOGGING
-#define HAPTIC_DEBUG
+#ifndef MOTOR_TIMEOUT
+#define MOTOR_TIMEOUT 1000UL
+#endif

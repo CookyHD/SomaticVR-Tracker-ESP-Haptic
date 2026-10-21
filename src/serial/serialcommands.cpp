@@ -469,7 +469,7 @@ void cmdDeleteCalibration(CmdParser* parser) {
 }
 
 void cmdHaptic(CmdParser* parser) {
-	Haptic::Instance().test(logger);
+	Haptic::Instance().serial();
 }
 
 

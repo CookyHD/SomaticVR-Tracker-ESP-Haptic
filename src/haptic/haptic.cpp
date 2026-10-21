@@ -1,98 +1,156 @@
 #include "haptic.h"
 
-void Haptic::send(uint8_t type) {
-	udp.beginPacket(ip,port);
-	udp.write(0);
-	udp.write(0);
-	udp.write(0);
-	udp.write(type);
-	udp.endPacket();
+void Haptic::begin_packet() {
+	UDP.beginPacket(Address, Port);
+	UDP.write(0);
+	UDP.write(0);
+	UDP.write(0);
+}
+
+template <typename Packet>
+void Haptic::send(PacketType type, Packet packet) {
+
+	size_t size = sizeof(packet);
+	uint8_t data[size];
+
+	memcpy(&data, &packet, size);
+
+	begin_packet();
+
+	UDP.write(UINT8(type));
+	UDP.write(data, size);
+
+	UDP.endPacket();
+}
+
+void Haptic::send_ping() {
+
+	begin_packet();
+
+	UDP.write(UINT8(PacketType::Ping));
+
+	UDP.endPacket();
+}
+
+void Haptic::send_discovery() {
+
+	DiscoveryPacket packet;
+	WiFi.macAddress(packet.mac);
+
+	Haptic::send(
+		PacketType::Discovery,
+		packet
+	);
 }
 
 void Haptic::setup() {
-	udp.begin(port);
-	if (!has_pin) {
-		pinMode(MOTOR_PIN,OUTPUT);
-analogWriteFrequency(MOTOR_PIN, 5000)
-	}
+
+	UDP.begin(Port);
+
+	if (!hasPin) return;
+
+	pinMode(MOTOR_PIN, OUTPUT);
+
+#ifdef ESP8266
+	analogWriteFreq(2000);
+	analogWriteRange(255);
+#else
+	analogWriteFrequency(MOTOR_PIN, 2000);
+	analogWriteResolution(MOTOR_PIN, 8);
+#endif
+
 }
 
 void Haptic::update() {
 
-if (end_vibration <= millies()) {
-  analogWrite(MOTOR_PIN, 0)
-} 
+	if (hasPin) {
 
-	if (!is_connected) {
-		if (last_discovery + DISCOVERY_RATE < millis()) {
-			logger.info("Searching For Haptic Server.");
-			last_discovery = millis();
-			Haptic::send((uint8_t)HapticPacketType::Discovery);
-		}
-	}
+		if (LastDutyTime + MOTOR_TIMEOUT < millis()) {
 
-	if (is_connected && last_packet + TIMEOUT < millis()) {
-		logger.info("Disconnected From Haptic Server.");
-		is_connected = false;
-		ip = IPAddress(255,255,255,255);
-		return;
-	}
-
-	int size = udp.parsePacket();
-	if (!size) {
-		return;
-	}
-	(void)size;
-
-	int length = udp.read(buffer,sizeof(buffer));
-
-	last_packet = millis();
-
-	switch (buffer[3]) {
-		case (uint8_t)HapticPacketType::HandShake:
-			logger.info("Connected To Haptic Server!");
-			is_connected = true;
-			ip = udp.remoteIP();
-			break;
-		case (uint8_t)HapticPacketType::Ping:
-			Haptic::send((uint8_t)HapticPacketType::Pong);
-			break;
-		case (uint8_t)HapticPacketType::DataVibration:
-
-			DataPacketVibration data;
-			memcpy(&data, buffer + 4, sizeof(DataPacket));
-
-			float vibration = resolve_field<float>(data.vibration);
-			int duration = resolve_field<int>(data.duration);
-
-#ifdef HAPTIC_DEBUG
-			logger.debug("Recived Haptic Data: %f, %i, %s", vibration, duration, punch ? "true" : "false");
-#endif
-
-			if (has_pin) {
-
-				analogWrite(MOTOR_PIN, (int)(255 * vibration))
-     end_vibration = millies() + (long)duration
-     
+			if (Testing) {
+				Logger.info("Testing Done!");
+				Testing = false;
 			}
 
-			(void)data;
+			CurrentDuty = DUTY_ZERO;
+		}
 
-			(void)vibration;
-			(void)duration;
-
-			break;
-
- case (uint8_t)HapticPacketType::DataPunch:
-			//todo
-break;
+		analogWrite(MOTOR_PIN, CurrentDuty);
 	}
 
-	(void)length;
+	if (!WiFi.isConnected()) return;
+
+	if (!isConnected) {
+		if (LastDiscoverTime + DISCOVERY_TIMEOUT < millis()) {
+
+			Logger.info("Searching For Haptic Server.");
+
+			LastDiscoverTime = millis();
+			send_discovery();
+		}
+	}
+	
+	if (isConnected && LastPacketTime + TIMEOUT < millis()) {
+
+		Logger.info("Haptic Server Disconnected.");
+
+		Address = IPAddress(255,255,255,255);
+		isConnected = false;
+		return;
+	}
+
+	if (UDP.parsePacket() == 0) return;
+	UDP.read(Buffer ,sizeof(Buffer));
+	
+	switch (Buffer[3]) {
+		case UINT8(PacketType::Handshake): {
+
+			HandshakePacket handshake = UNPACK<HandshakePacket>(Buffer + 4);
+
+			if (UNPACK<int>(handshake.secret) == 80085) {
+
+				Logger.info("Haptic Server Connected!");
+
+				LastPacketTime = millis();
+
+				Address = UDP.remoteIP();
+				isConnected = true;
+			}
+
+			break;
+		}
+		case UINT8(PacketType::Ping): {
+
+			LastPacketTime = millis();
+			send_ping();
+
+			break;
+		}
+		case UINT8(PacketType::UpdateData): {
+
+			UpdateDataPacket data = UNPACK<UpdateDataPacket>(Buffer + 4);
+			
+			if (!Testing) {
+
+				LastDutyTime = millis();
+
+				if (isInvertedPin) CurrentDuty = 255 - (int)data.duty;
+				else CurrentDuty = (int)data.duty;;
+			}
+
+			break;
+		}
+	}
 }
 
-void Haptic::test(SlimeVR::Logging::Logger &callback_logger) {
-	callback_logger.info("Testing Haptic Motor.\n");
-	logger.warn("NOT IMPLEMENTED YET!\n");
-	callback_logger.info("Done.");
+void Haptic::serial() {
+
+	Logger.info("Testing Haptic...");
+	Testing = true;
+
+	LastDutyTime = 3000 + millis();
+
+	if (isInvertedPin) CurrentDuty = 0;
+	else CurrentDuty = 255;
 }
+
