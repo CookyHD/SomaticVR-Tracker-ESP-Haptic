@@ -98,7 +98,7 @@
 
 #define PROTOCOL_VERSION 21
 
-#define FIRMWARE_VERSION "v0.7.2-Orion-2 (Haptic)"
+#define FIRMWARE_VERSION "v0.7.2-Orion-2-Haptic1"
 
 //#ifndef FIRMWARE_VERSION
 //#define FIRMWARE_VERSION "UNKNOWN"
